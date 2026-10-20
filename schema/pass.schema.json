@@ -1,0 +1,1460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://osho98.github.io/traningsapp/schema/pass.schema.json",
+  "title": "oh-pass v1",
+  "description": "Pass-, resultat- och kostformat för träningsappen (docs/pass-api.md). Endast träningsinnehåll: fält för diagnoser, symtom, smärtskattningar, vårdkontakter, läkemedel/TUE, vikt, kroppssammansättning, energiupplägg, mående-/fokusskattningar och reflektioner finns inte och avvisas (additionalProperties: false).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version"
+  ],
+  "properties": {
+    "format": {
+      "const": "oh-pass"
+    },
+    "version": {
+      "const": 1
+    },
+    "generator": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "generated_at": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/session"
+      },
+      "maxItems": 500
+    },
+    "nutrition": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nutrition"
+      }
+    },
+    "restrictions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/restriction"
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "required": [
+        "sessions"
+      ]
+    },
+    {
+      "required": [
+        "nutrition"
+      ]
+    },
+    {
+      "required": [
+        "restrictions"
+      ]
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 3,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9:._\\-]{2,99}$",
+      "description": "Stabilt id – samma id vid omimport uppdaterar i stället för att skapa dubbletter"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "time": {
+      "type": "string",
+      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "file": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "sheet_id": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "tab": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "pass_id": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "raw_status": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "row": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "description": "Ursprung (endast referenser)"
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "from_m": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "to_m": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "turn": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "from_m",
+        "to_m"
+      ],
+      "description": "Mätsegment, t.ex. 0–15, 15–25 eller vändning 20–30 m"
+    },
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "at_m": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000
+        },
+        "time_s": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 3600
+        }
+      },
+      "required": [
+        "at_m",
+        "time_s"
+      ]
+    },
+    "time_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rep": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "segment": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "time_s": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3600
+        },
+        "method": {
+          "enum": [
+            "hand",
+            "video",
+            "touchpad",
+            "elektronisk",
+            "annan"
+          ],
+          "description": "Tidtagningsmetod"
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "start_type": {
+          "enum": [
+            "block",
+            "push",
+            "deadstart",
+            "flygande"
+          ],
+          "description": "Starttyp"
+        },
+        "pool_m": {
+          "enum": [
+            25,
+            50
+          ],
+          "description": "Bassänglängd i meter"
+        },
+        "splits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/split"
+          }
+        },
+        "reaction_s": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "turn_in_s": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "turn_out_s": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30
+        },
+        "strokes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "stroke_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "video_url": {
+          "type": "string",
+          "maxLength": 510,
+          "pattern": "^https://[^\\s\\\"<>]{3,500}$",
+          "description": "Länk (bara URL, inga filer)"
+        }
+      },
+      "required": [
+        "rep"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "time_s"
+          ]
+        },
+        {
+          "required": [
+            "splits"
+          ]
+        }
+      ]
+    },
+    "row_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "genomford",
+            "andrad",
+            "struken"
+          ],
+          "description": "Vad som faktiskt genomfördes"
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "stopped_at_rep": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "stop_reason": {
+          "enum": [
+            "fartfall",
+            "annat"
+          ]
+        },
+        "video_url": {
+          "type": "string",
+          "maxLength": 510,
+          "pattern": "^https://[^\\s\\\"<>]{3,500}$",
+          "description": "Länk (bara URL, inga filer)"
+        },
+        "times": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/time_result"
+          }
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "distance_m": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 5000
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "buckets",
+              "fallskärm",
+              "fenor",
+              "paddlar",
+              "mits",
+              "sox",
+              "snorkel",
+              "dolme",
+              "annat"
+            ]
+          }
+        },
+        "start_type": {
+          "enum": [
+            "block",
+            "push",
+            "deadstart",
+            "flygande"
+          ],
+          "description": "Starttyp"
+        },
+        "timing_mode": {
+          "enum": [
+            "starttid",
+            "vila"
+          ],
+          "description": "Vila ELLER starttid"
+        },
+        "timing_value": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "sprint": {
+          "type": "boolean"
+        },
+        "stat_tag": {
+          "enum": [
+            "Start",
+            "15 m",
+            "25 m",
+            "Undervatten",
+            "Fart"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/segment"
+          }
+        },
+        "stop_criterion": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "intensity": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "cues": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "event": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "restriction_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "description": "Id för träningsregler (avstängt i appen tills RLS är verifierad)"
+        },
+        "result": {
+          "$ref": "#/$defs/row_result"
+        }
+      },
+      "required": [
+        "reps"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "distance_m"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ],
+      "dependentRequired": {
+        "timing_mode": [
+          "timing_value"
+        ],
+        "timing_value": [
+          "timing_mode"
+        ]
+      }
+    },
+    "series": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "rationale": {
+          "type": "string",
+          "maxLength": 4000,
+          "description": "Fysiologisk motivering"
+        },
+        "rounds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Varv – raderna upprepas så många gånger"
+        },
+        "timing_mode": {
+          "enum": [
+            "starttid",
+            "vila"
+          ],
+          "description": "Vila ELLER starttid"
+        },
+        "timing_value": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "work_rest": {
+          "type": "string",
+          "maxLength": 20,
+          "pattern": "^\\d+(?:[.,]\\d+)?\\s*:\\s*\\d+(?:[.,]\\d+)?$",
+          "description": "Arbete–vila-kvot, t.ex. 1:12"
+        },
+        "recovery": {
+          "enum": [
+            "full",
+            "ofullstandig"
+          ]
+        },
+        "evidence": {
+          "enum": [
+            "stark",
+            "mattlig",
+            "svag",
+            "extrapolerad"
+          ]
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "rows"
+      ],
+      "dependentRequired": {
+        "timing_mode": [
+          "timing_value"
+        ],
+        "timing_value": [
+          "timing_mode"
+        ]
+      }
+    },
+    "setplan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reps": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "reps_max": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "load_kg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "load_text": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "rir": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "velocity_ms": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 5
+        }
+      }
+    },
+    "xset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "set": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "kg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "reps": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "rir": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "velocity_ms": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 5
+        }
+      },
+      "required": [
+        "set"
+      ]
+    },
+    "exercise": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "sets": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "reps": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "reps_max": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "unit": {
+          "enum": [
+            "reps",
+            "s"
+          ]
+        },
+        "rest": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "load_kg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "load_text": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "rir": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "rir_max": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "rpe": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "rpe_max": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "velocity_ms": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 5
+        },
+        "set_plan": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/setplan"
+          }
+        },
+        "test": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "cmj",
+                "langdhopp",
+                "annat"
+              ]
+            },
+            "method": {
+              "enum": [
+                "matta",
+                "platta",
+                "app",
+                "måttband"
+              ]
+            },
+            "name": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "cmj"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "method"
+            ]
+          }
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "progression": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "modification": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "restriction_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "description": "Id för träningsregler (avstängt i appen tills RLS är verifierad)"
+        },
+        "result": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "enum": [
+                "genomford",
+                "andrad",
+                "struken"
+              ],
+              "description": "Vad som faktiskt genomfördes"
+            },
+            "comment": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "video_url": {
+              "type": "string",
+              "maxLength": 510,
+              "pattern": "^https://[^\\s\\\"<>]{3,500}$",
+              "description": "Länk (bara URL, inga filer)"
+            },
+            "sets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/xset"
+              }
+            },
+            "attempts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "value_cm": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 400
+                  }
+                },
+                "required": [
+                  "value_cm"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "name",
+        "sets"
+      ]
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 300,
+          "minLength": 1
+        },
+        "duration_s": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "result": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "enum": [
+                "genomford",
+                "andrad",
+                "struken"
+              ],
+              "description": "Vad som faktiskt genomfördes"
+            },
+            "comment": {
+              "type": "string",
+              "maxLength": 300
+            }
+          }
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    "session_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rpe": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "duration_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "video_url": {
+          "type": "string",
+          "maxLength": 510,
+          "pattern": "^https://[^\\s\\\"<>]{3,500}$",
+          "description": "Länk (bara URL, inga filer)"
+        },
+        "timing_method": {
+          "enum": [
+            "hand",
+            "video",
+            "touchpad",
+            "elektronisk",
+            "annan"
+          ],
+          "description": "Tidtagningsmetod"
+        },
+        "pool_m": {
+          "enum": [
+            25,
+            50
+          ],
+          "description": "Bassänglängd i meter"
+        },
+        "start_type": {
+          "enum": [
+            "block",
+            "push",
+            "deadstart",
+            "flygande"
+          ],
+          "description": "Starttyp"
+        },
+        "conditions": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "context": {
+          "enum": [
+            "traning",
+            "test",
+            "tavling"
+          ],
+          "description": "Sammanhang för mätningen"
+        },
+        "warmup": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "caffeine": {
+          "type": "boolean",
+          "description": "Koffein ja/nej – ingen dos"
+        },
+        "baseline": {
+          "type": "boolean",
+          "description": "Testdag som baslinje"
+        },
+        "logged_at": {
+          "type": "string",
+          "maxLength": 40
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "swim",
+            "competition",
+            "gym",
+            "core",
+            "mobility",
+            "imagery"
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/date"
+        },
+        "start": {
+          "$ref": "#/$defs/time"
+        },
+        "end": {
+          "$ref": "#/$defs/time"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 120,
+          "minLength": 1
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "purpose": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "focus": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Fokus (text)"
+        },
+        "rpe": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "rpe_max": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "multipleOf": 0.5
+        },
+        "rationale": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "starts_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "total_distance_m": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "status": {
+          "enum": [
+            "utkast",
+            "godkand"
+          ]
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "pool_m": {
+          "enum": [
+            25,
+            50
+          ],
+          "description": "Bassänglängd i meter"
+        },
+        "event_name": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "stop_criterion": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "key_metrics": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "hc_comment": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "warmup": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          }
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "restriction_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "description": "Id för träningsregler (avstängt i appen tills RLS är verifierad)"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/series"
+          },
+          "minItems": 1
+        },
+        "exercises": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/exercise"
+          },
+          "minItems": 1
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 1
+        },
+        "result": {
+          "$ref": "#/$defs/session_result"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "date",
+        "title"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "swim",
+                  "competition"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "series",
+              "pool_m"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "exercises"
+                  ]
+                },
+                {
+                  "required": [
+                    "steps"
+                  ]
+                }
+              ]
+            }
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "pool_m"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "imagery"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "steps"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "exercises"
+                  ]
+                },
+                {
+                  "required": [
+                    "series"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "gym",
+                  "core",
+                  "mobility"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "exercises"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "series"
+                  ]
+                },
+                {
+                  "required": [
+                    "steps"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "competition"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "event_name"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "restriction": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "rule": {
+          "type": "string",
+          "maxLength": 300,
+          "minLength": 1
+        },
+        "valid_from": {
+          "$ref": "#/$defs/date"
+        },
+        "valid_to": {
+          "$ref": "#/$defs/date"
+        },
+        "until": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 120
+        }
+      },
+      "required": [
+        "id",
+        "rule",
+        "valid_from"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "valid_to"
+          ]
+        },
+        {
+          "required": [
+            "until"
+          ]
+        }
+      ],
+      "description": "Restriktion som träningsregel med giltighetstid. Avstängd i appen tills RLS är verifierad."
+    },
+    "food": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "type": "string",
+          "maxLength": 120,
+          "minLength": 1
+        },
+        "amount": {
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      "required": [
+        "item"
+      ]
+    },
+    "meal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "time": {
+          "$ref": "#/$defs/time"
+        },
+        "when": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Relativ tid, t.ex. '3 h före start'"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "foods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/food"
+          }
+        },
+        "protein_g": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "carbs_g": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 400
+        },
+        "relation": {
+          "enum": [
+            "fore_pass",
+            "efter_pass"
+          ]
+        },
+        "session_id": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "oh-pass-id för passet måltiden hör till"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "time"
+              ]
+            },
+            {
+              "required": [
+                "when"
+              ]
+            }
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "foods"
+              ]
+            },
+            {
+              "required": [
+                "content"
+              ]
+            }
+          ]
+        }
+      ],
+      "dependentRequired": {
+        "session_id": [
+          "relation"
+        ]
+      }
+    },
+    "nutrition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "scope": {
+          "enum": [
+            "daytype",
+            "day",
+            "competition"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "day_type": {
+          "enum": [
+            "traning",
+            "dubbelpass",
+            "vila",
+            "tavling"
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/date"
+        },
+        "dates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/date"
+          },
+          "minItems": 1
+        },
+        "valid_from": {
+          "$ref": "#/$defs/date"
+        },
+        "valid_to": {
+          "$ref": "#/$defs/date"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "meals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/meal"
+          },
+          "minItems": 1
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      },
+      "required": [
+        "id",
+        "scope",
+        "meals"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "daytype"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "day_type"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "date"
+                  ]
+                },
+                {
+                  "required": [
+                    "dates"
+                  ]
+                }
+              ]
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "day_type"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "day"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "date"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "competition"
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "date"
+                ]
+              },
+              {
+                "required": [
+                  "dates"
+                ]
+              }
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "dates"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Kostplan: måltider, klockslag, livsmedel, mängder, protein och kolhydrater per måltid. Inga kcal-mål, underskottsdagar, kroppsvikt/-sammansättning, brytkriterier, skattningar eller tillskott med doser."
+    }
+  }
+}
